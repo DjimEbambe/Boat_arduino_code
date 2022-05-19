@@ -17,6 +17,7 @@ const int in3 = 2;
 const int in4 = 4;
 const int safran = 3;
 int angle = 90;
+int all=0;
 
 // Defines
 #define SAMPLE_RATE 10  // in Hz
@@ -25,6 +26,7 @@ int angle = 90;
 Madgwick filter;  // Madgwick algorithm for roll, pitch, and yaw calculations
 
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
+IPAddress ip(192,168,0,177);
 char ssid[] = SECRET_SSID;        // your network SSID (name)
 char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
 int keyIndex = 0;                 // your network key index number (needed only for WEP)
@@ -67,6 +69,8 @@ void setup() {
     // don't continue
     while (true);
   }
+
+   WiFi.config(ip);
 
   String fv = WiFi.firmwareVersion();
   if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
@@ -133,6 +137,40 @@ void loop() {
 
         // controle safran
 
+        // controle safran Left all
+        if (currentLine.endsWith("safranLeftAll")) {              
+          String request = currentLine; 
+          request.replace("GET /", " ");
+          request.replace("safranLeft", " ");
+          int values = request.toInt();
+          int left= myservo.read();
+          if(40<left-30<140){
+              for (int i; i<30 ; i += 1) {
+                myservo.write(left - 1);
+                delay(15);
+              }
+           }                      
+        }
+
+
+        // controle safran Right all
+        if (currentLine.endsWith("safranRightAll")) {              
+          String request = currentLine; 
+          request.replace("GET /", " ");
+          request.replace("safranRight", " ");
+          int values = request.toInt();
+
+          int right= myservo.read();
+            if(40<right+30<140){
+              for (int i; i<30 ; i += 1) {
+                myservo.write(right + 1);
+                delay(15);
+              }
+
+            }
+             
+        }
+
         // controle safran Left
         if (currentLine.endsWith("safranLeft")) {              
           String request = currentLine; 
@@ -140,11 +178,10 @@ void loop() {
           request.replace("safranLeft", " ");
           int values = request.toInt();
 
-          
-            int left= myservo.read() - 5;
-            myservo.write(left); 
-           
-          
+          int left= myservo.read();
+            if(40<left<140){
+                myservo.write(left - 5);
+              }
         }
 
         // controle safran Right
@@ -153,9 +190,13 @@ void loop() {
           request.replace("GET /", " ");
           request.replace("safranRight", " ");
           int values = request.toInt();
-          
-            int right= myservo.read() + 5;
-            myservo.write(right);  
+
+          int right= myservo.read();
+            if(40<right<140){
+              myservo.write(right + 5);
+            }
+            //int right= myservo.read() + 5;
+            //myservo.write(right);  
              
         }
 
